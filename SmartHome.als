@@ -1,6 +1,21 @@
 // basic types without internal structure
 sig Name {}
-sig Value {}
+
+//////////////////////////////// VALUES
+sig Value{
+}
+
+//light intensity
+sig LightValue extends Value{}
+//angle value
+sig AngleValue extends Value{}
+//volume intensity
+sig VolumeValue extends Value{}
+//id of song
+sig SongValue extends Value{}
+//heat instensity
+sig HeatValue extends Value{}
+
 
 //////////////////////////////// TYPES
 //Accessory type
@@ -30,7 +45,7 @@ sig Action{
 //lightbulb actions:
 //value = intensity of light
 sig LightBulb_Action extends Action{
-  value : one Value,
+  value : one LightValue,
 }
 
 //Camera actions
@@ -38,8 +53,8 @@ sig LightBulb_Action extends Action{
 //verticalAngle = vertical angle of camera position
 //state = current camera state
 sig Camera_Action extends Action{
-  horizontalAngle : one Value,
-  verticalAngle : one Value,
+  horizontalAngle : one AngleValue,
+  verticalAngle : one AngleValue,
   state : one CameraState,
 }
 
@@ -48,8 +63,8 @@ sig Camera_Action extends Action{
 //verticalAngle = vertical angle of sensor position
 //state = current sensor state
 sig Sensor_Action extends Action{
-  horizontalAngle : one Value,
-  verticalAngle : one Value,
+  horizontalAngle : one AngleValue,
+  verticalAngle : one AngleValue,
   state : one SensorState,
 }
 
@@ -57,14 +72,14 @@ sig Sensor_Action extends Action{
 //volume = volume value
 //song = current song in queue
 sig MusicPlayer_Action extends Action{
-  volume : one Value,
-  song : one Value,
+  volume : one VolumeValue,
+  song : one SongValue,
 }
 
 //Heater actions
 // heat = heat value
 sig Heater_Action extends Action{
-  heat : one Value,
+  heat : one HeatValue,
 }
 
 //Voice Assistant actions
@@ -138,11 +153,13 @@ sig ToiletRoom extends Room{}
 sig BathRoom extends Room{}
 sig Hallway extends Room{}
 
+//////////////////////////////// SETS
 fact {Room = LivinRoom + Kitchen + HostRoom + ToiletRoom + BathRoom + Hallway}
 fact {Action = LightBulb_Action + Camera_Action + Sensor_Action + MusicPlayer_Action + 
       Heater_Action + VoiceAssistant_Action}
 fact {Type = LightBulbType + CameraType + SensorType + MusicPlayerType + HeaterType + 
       VoiceAssistantType}
+fact {Value = LightValue + AngleValue + VolumeValue + SongValue + HeatValue}
 fact {CameraState = CameraState_recording + CameraState_notRecording}
 fact {SensorState = SensorState_monitoring + SensorState_notMonitoring}
 fact {VoiceAssistantState = VAState_listening + VAState_notListnening}
@@ -221,9 +238,8 @@ run myinst for 1 but exactly 1 House,
                      exactly 1 MusicPlayerType,
                      exactly 1 VoiceAssistantType,
                      exactly 4 Action,
+                     15 Value,
                      exactly 7 Name
 
 
 //fact { #Director > 2 }
-//WHAT TO ADD :
-//one control center
