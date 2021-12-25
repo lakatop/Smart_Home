@@ -113,7 +113,6 @@ sig VAState_notListnening extends VoiceAssistantState{}
 //name = name identifier
 //type = type of accessory
 //action = action of Accessory
-//placedIn = room this accessory is placed in
 sig Accessory{
   name : one Name,
   type : one Type,
@@ -129,7 +128,6 @@ sig ControlCenter{
 
 //Room signature
 //name = name identifier
-//house = house this accessory is placed in
 //accessories = set of accessories in this room
 sig Room{
   name : one Name,
@@ -141,7 +139,7 @@ sig Room{
 //rooms = set of rooms this house consists of
 sig House{
   name : one Name,
-  rooms : set Room,
+  rooms : some Room,
   controlCenter : one ControlCenter,
 }
 
@@ -174,6 +172,8 @@ fact {all r1: Room, r2: Room | r1.name = r2.name => r1 = r2}
 fact {all a1: Accessory, a2: Accessory| a1.name = a2.name => a1 = a2}
 //All houses are identified by its name
 fact {all h1: House, h2: House | h1.name = h2.name => h1 = h2}
+//All Control Centers are identified by its name
+fact {all cc1: ControlCenter, cc2: ControlCenter | cc1.name = cc2.name => cc1 = cc2}
 //All names are unique
 fact {all h: House | all r1: Room| all a: Accessory | all cc: ControlCenter |
       h.name != r1.name and h.name != a.name and r1.name != a.name and
@@ -194,10 +194,24 @@ fact {all t: Type | some acc: Accessory | acc.type = t}
 fact {all cs: CameraState | some cas: Camera_Action | cas.state = cs}
 //Every sensor state is attached to sensor action
 fact {all ss: SensorState | some sa: Sensor_Action | sa.state = ss}
+fact {all vas: VoiceAssistantState | some vaa: VoiceAssistant_Action | vaa.state = vas}
+//Every LightBulbValue belongs to some lightbulb action
+fact {all lv: LightValue | some la: LightBulb_Action | la.value = lv}
+//Every AngleValue belongs to some angle in action
+fact {all av: AngleValue | some ca: Camera_Action, sa: Sensor_Action | 
+      av = ca.horizontalAngle || av = ca.verticalAngle || 
+      av = sa.horizontalAngle || av = sa.verticalAngle}
+//Every VolumeValue belongs to some volume in music player action
+fact {all vv: VolumeValue | some ma: MusicPlayer_Action | ma.volume = vv}
+//Every SongValue belongs to some song in music player action
+fact {all sv: SongValue | some ma: MusicPlayer_Action | ma.song = sv}
+//Every HeatValue belongs to some heat in heater action
+fact {all hv: HeatValue | some ha: Heater_Action | ha.heat = hv}
 
-// //every room has music player in it
+
+//every room has music player in it
 fact {all r1: Room | some a: Accessory | a.type = MusicPlayerType && a in r1.accessories}
-//every rook has a heater in it
+//every room has a heater in it
 fact {all r1: Room | some a: Accessory | a.type = HeaterType && a in r1.accessories}
 //every room has a voice assistant in it
 fact {all r1: Room | some a: Accessory | a.type = VoiceAssistantType && a in r1.accessories}
@@ -214,32 +228,80 @@ fact {all a: Accessory | a.type in VoiceAssistantType <=> a.action in VoiceAssis
 
 //TOILET ROOM
 //we dont have cameras in toilet room
-fact {all r1: ToiletRoom | all a : Accessory | 
-     a in r1.accessories => a.type != CameraType}
+fact {all r1: ToiletRoom, a : r1.accessories | a.type != CameraType}
 
 //BATH ROOM
 //we dont have cameras in bathroom
-fact {all r1: BathRoom | all a : Accessory |
-      a in r1.accessories => a.type != CameraType}
+fact {all r1: BathRoom, a : r1.accessories | a.type != CameraType}
 
 // //HALLWAY
-// //We have move sensors only in hallway
-fact {all a: Accessory | a.type = SensorType => some hl: Hallway | a in hl.accessories}
+//We have at least one move sensor in hallway
+fact {all r1: Hallway | some a: r1.accessories | a.type = SensorType}
+//We have at least one camera in hallway
+fact {all r1: Hallway | some a: r1.accessories | a.type = CameraType}
+
+//////////////////////////////// PREDICATE
+
+pred addAccessory [h: House, r1: Room, a: Accessory] {
+  r1 in h.rooms
+  r1.accessories = r1.accessories + a
+  h.controlCenter.accessories = h.controlCenter.accessories + a
+}
+
+run addAccessory for 18 but exactly 1 House,
+                            exactly 10 Accessory,
+                            exactly 1 Hallway,
+                            exactly 1 BathRoom,
+                            exactly 1 ToiletRoom,
+                            exactly 1 LivinRoom,
+                            exactly 1 Kitchen,
+                            exactly 1 HostRoom,
+                            5 LightBulbType
 
 
+//////////////////////////////// ASSERTS AND CHECKS
 
-pred myinst{}
+assert uniqueHouseNames {
+  all h1: House, h2: House | h1.name = h2.name => h1 = h2
+}
 
+assert uniqueRoomNames {
+  all r1: Room, r2: Room | r1.name = r2.name => r1 = r2
+}
 
-run myinst for 1 but exactly 1 House, 
-                     exactly 1 Room, 
-                     exactly 4 Accessory, 
-                     exactly 1 HeaterType,
-                     exactly 1 MusicPlayerType,
-                     exactly 1 VoiceAssistantType,
-                     exactly 4 Action,
-                     15 Value,
-                     exactly 7 Name
+assert uniqueAccessoriesNames {
+  all a1: Accessory, a2: Accessory | a1.name = a2.name => a1 = a2
+}
 
+assert uniqueControlCenterNames {
+  all c1: ControlCenter, c2: ControlCenter | c1.name = c2.name => c1 = c2
+}
 
-//fact { #Director > 2 }
+assert OneControlCenterPerHouse {
+  all h: House | one cc: ControlCenter | h.controlCenter = cc
+}
+
+assert NoCamerasInBathroom {
+  all br: BathRoom | not some a: br.accessories | a.type = CameraType
+}
+
+assert AtLeastOneAccessoryPerRoom {
+  all r1: Room, a: r1.accessories | #a >= 1
+}
+
+assert NonEmptyHouse {
+  all h: House | #h.rooms > 0
+}
+
+assert NonEmptyRooms {
+  all r1: Room | #r1.accessories >= 0
+}
+
+//check uniqueHouseNames for 3
+//check uniqueRoomNames for 3
+//check uniqueAccessoriesNames for 3
+//check uniqueControlCenterNames for 3
+//check NoCamerasInBathroom for 3
+//check AtLeastOneAccessoryPerRoom for 3
+//check NonEmptyHouse for 3
+//check NonEmptyRooms for 3
