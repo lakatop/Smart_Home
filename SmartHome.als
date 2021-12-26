@@ -34,8 +34,6 @@ sig MusicPlayerType extends Type{}
 sig HeaterType extends Type{}
 //voice assistant
 sig VoiceAssistantType extends Type{}
-//control center
-sig ControlCenterType extends Type{}
 
 //////////////////////////////// ACTIONS
 //Actions of various accessories
@@ -86,10 +84,6 @@ sig Heater_Action extends Action{
 //state = current voice assistant state
 sig VoiceAssistant_Action extends Action{
   state : one VoiceAssistantState,
-}
-
-//Control center actions
-sig ControlCenter_Action extends Action{
 }
 
 //////////////////////////////// ENUMS
