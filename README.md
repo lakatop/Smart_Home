@@ -26,7 +26,7 @@ Signatura **Room** obsahuje jeden identifikator **name** a neprazdnu mnozinu sma
 - Hallway
 
 ### Accessory
-Signatura **Accessory** obsahuje jeden identifikator **name**, jeden typ **type** a jednu akciu akciu **action**. 
+Signatura **Accessory** obsahuje jeden identifikator **name**, jeden typ **type** a jednu akciu **action**. 
 
 Typ reprezentujeme zakladnou signaturou **Type**, od ktorej potom odvadzame konkretne signatury typu (podobne ako pri izbach ich vyuzivame ako enum):
 - LightBulbType
@@ -36,7 +36,7 @@ Typ reprezentujeme zakladnou signaturou **Type**, od ktorej potom odvadzame konk
 - HeaterType
 - VoiceAssistantType
 
-Akciu reprezentujeme zakladnou signaturou **Action**, od ktorej potom odvadzame konkretne signatury akcie. Vyzuivame ich podobne ako enum pri typoch. Kazda akcia ale navyse obsahuje dalsie polozky, ktore su specificke pre danu akciu. Obecne ale pozostavaju z nejakej **Value** alebo **State**. Momentalne mame akciu pre kazdy typ **Accessory**:
+Akciu reprezentujeme zakladnou signaturou **Action**, od ktorej potom odvadzame konkretne signatury akcie. Vyuzivame ich podobne ako enum pri typoch. Kazda akcia ale navyse obsahuje dalsie polozky, ktore su specificke pre danu akciu. Obecne ale pozostavaju z nejakej **Value** alebo **State**. Momentalne mame akciu pre kazdy typ **Accessory**:
 - LightBulb_Action
 - Camera_Action
 - Sensor_Action
